@@ -16,7 +16,6 @@ const (
 	ENCHIVE_PINENTRY_DEFAULT_ENABLED = 0
 	ENCHIVE_PASSPHRASE_MAX           = 1024
 	_POSIX_C_SOURCE                  = 1
-
 //  OPTPARSE_IMPLEMENTATION
 
 //  STR(a) XSTR(a)
@@ -25,32 +24,26 @@ const (
 
 
 /* Global options. */
-static char *global_pubkey = 0
-static char *global_seckey = 0
+var (
 
-#if ENCHIVE_AGENT_DEFAULT_ENABLED
-static int global_agent_timeout = ENCHIVE_AGENT_TIMEOUT
-#else
-static int global_agent_timeout = 0
-#endif
+global_pubkey string = ""
+global_seckey string = ""
 
-#if ENCHIVE_PINENTRY_DEFAULT_ENABLED
-static char *pinentry_path = STR(ENCHIVE_PINENTRY_DEFAULT)
-#else
-static char *pinentry_path = 0
-#endif
+global_agent_timeout = ENCHIVE_AGENT_TIMEOUT
 
-static const char enchive_suffix[] = STR(ENCHIVE_FILE_EXTENSION)
+pinentry_path = ""
+enchive_suffix string = ENCHIVE_FILE_EXTENSION
+)
 
-static struct {
-    char *name
-    FILE *file
-} cleanup[2]
+// static struct {
+//     char *name
+//     FILE *file
+// } cleanup[2]
 
 /**
  * Register a file for deletion should fatal() be called.
  */
-static void
+// static void
 cleanup_register(FILE *file, char *name)
 {
     if (file) {
@@ -69,7 +62,7 @@ cleanup_register(FILE *file, char *name)
 /**
  * Update cleanup registry to indicate FILE has been closed.
  */
-static void
+// static void
 cleanup_closed(FILE *file)
 {
     unsigned i
@@ -85,7 +78,7 @@ cleanup_closed(FILE *file)
 /**
  * Free resources held by the cleanup registry.
  */
-static void
+// static void
 cleanup_free(void)
 {
     size_t i
@@ -96,7 +89,7 @@ cleanup_free(void)
 /**
  * Print a message, cleanup, and exit the program with a failure code.
  */
-static void
+// static void
 fatal(const char *fmt, ...)
 {
     unsigned i
@@ -118,7 +111,7 @@ fatal(const char *fmt, ...)
 /**
  * Print a non-fatal warning message.
  */
-static void
+// static void
 warning(const char *fmt, ...)
 {
     va_list ap
@@ -133,7 +126,7 @@ warning(const char *fmt, ...)
  * Return a copy of S, which may be NULL.
  * Abort the program if out of memory.
  */
-static char *
+// static char *
 dupstr(const char *s)
 {
     char *copy = 0
@@ -151,7 +144,7 @@ dupstr(const char *s)
  * Concatenate N strings as a new string.
  * Abort the program if out of memory.
  */
-static char *
+// static char *
 joinstr(int n, ...)
 {
     int i
@@ -186,24 +179,17 @@ joinstr(int n, ...)
 /**
  * Read the protection key from a key agent identified by its IV.
  */
-static int agent_read(uint8_t *key, const uint8_t *id)
+// static int agent_read(uint8_t *key, const uint8_t *id)
 
 /**
  * Serve the protection key on a key agent identified by its IV.
  */
-static int agent_run(const uint8_t *key, const uint8_t *id)
-
-#if ENCHIVE_OPTION_AGENT
-#include <poll.h>
-#include <unistd.h>
-#include <sys/un.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
+// static int agent_run(const uint8_t *key, const uint8_t *id)
 
 /**
  * Fill ADDR with a unix domain socket name for the agent.
  */
-static int
+// static int
 agent_addr(struct sockaddr_un *addr, const uint8_t *iv)
 {
     char *dir = getenv("XDG_RUNTIME_DIR")
@@ -224,7 +210,7 @@ agent_addr(struct sockaddr_un *addr, const uint8_t *iv)
     }
 }
 
-static int
+// static int
 agent_read(uint8_t *key, const uint8_t *iv)
 {
     int success
@@ -243,7 +229,7 @@ agent_read(uint8_t *key, const uint8_t *iv)
     return success
 }
 
-static int
+// static int
 agent_run(const uint8_t *key, const uint8_t *iv)
 {
     struct pollfd pfd = {-1, POLLIN, 0}
@@ -312,29 +298,11 @@ agent_run(const uint8_t *key, const uint8_t *iv)
     exit(EXIT_SUCCESS)
 }
 
-#else
-static int
-agent_read(uint8_t *key, const uint8_t *id)
-{
-    (void)key
-    (void)id
-    return 0
-}
-
-static int
-agent_run(const uint8_t *key, const uint8_t *id)
-{
-    (void)key
-    (void)id
-    return 0
-}
-#endif
-
 /**
  * Prepend the system user config directory to a filename, creating
  * the directory if necessary. Calls fatal() on any error.
  */
-static char *storage_directory(char *file)
+// static char *storage_directory(char *file)
 
 #if defined(__unix__) || defined(__APPLE__) || defined(__HAIKU__)
 #include <dirent.h>
@@ -345,7 +313,7 @@ static char *storage_directory(char *file)
 /**
  * Return non-zero if path exists and is a directory.
  */
-static int
+// static int
 dir_exists(const char *path)
 {
     struct stat info
@@ -353,11 +321,11 @@ dir_exists(const char *path)
 }
 
 /* Use XDG_CONFIG_HOME/enchive, or HOME/.config/enchive. */
-static char *
+// static char *
 storage_directory(char *file)
 {
-    static const char enchive[] = "/enchive/"
-    static const char config[] = "/.config"
+    // static const char enchive[] = "/enchive/"
+    // static const char config[] = "/.config"
     char *xdg_config_home = getenv("XDG_CONFIG_HOME")
     char *path, *s
 
@@ -390,11 +358,11 @@ storage_directory(char *file)
 #include <windows.h>
 
 /* Use %APPDATA% */
-static char *
+// static char *
 storage_directory(char *file)
 {
     char *parent
-    static const char enchive[] = "\\enchive\\"
+    // static const char enchive[] = "\\enchive\\"
     char *appdata = getenv("APPDATA")
     if (!appdata)
         fatal("APPDATA is unset")
@@ -420,12 +388,12 @@ storage_directory(char *file)
 /**
  * Read a passphrase directly from the keyboard without echo.
  */
-static void get_passphrase(char *buf, size_t len, char *prompt)
+// static void get_passphrase(char *buf, size_t len, char *prompt)
 
 /**
  * Read a passphrase without any fanfare (fallback).
  */
-static void
+// static void
 get_passphrase_dumb(char *buf, size_t len, char *prompt)
 {
     size_t passlen
@@ -439,7 +407,7 @@ get_passphrase_dumb(char *buf, size_t len, char *prompt)
         buf[passlen - 1] = 0
 }
 
-static void
+// static void
 pinentry_decode(char *buf, size_t blen, const char *str)
 {
     size_t i, j
@@ -447,7 +415,7 @@ pinentry_decode(char *buf, size_t blen, const char *str)
     for (i = 0, j = 0; str[i] && str[i] != '\n' && j < blen - 1; i++) {
         int c = str[i]
         if (c == '%') {
-            static const char *hex = "0123456789ABCDEF"
+            // static const char *hex = "0123456789ABCDEF"
             char *nibh, *nibl
             if (!str[i + 1] || !str[i + 2])
                 fatal("invalid data from pinentry")
@@ -464,7 +432,7 @@ pinentry_decode(char *buf, size_t blen, const char *str)
     buf[j] = 0
 }
 
-static void
+// static void
 pinentry(FILE *pfi, FILE *pfo, char *buf, size_t len, char *prompt)
 {
     char line[ENCHIVE_PASSPHRASE_MAX * 3 + 32]
@@ -506,7 +474,7 @@ pinentry(FILE *pfi, FILE *pfo, char *buf, size_t len, char *prompt)
 #include <unistd.h>
 #include <termios.h>
 
-static void
+// static void
 pinentry_unix(char *buf, size_t len, char *prompt)
 {
     int pin[2]
@@ -547,7 +515,7 @@ pinentry_unix(char *buf, size_t len, char *prompt)
     }
 }
 
-static void
+// static void
 get_passphrase(char *buf, size_t len, char *prompt)
 {
     int tty
@@ -590,7 +558,7 @@ get_passphrase(char *buf, size_t len, char *prompt)
 #include <windows.h>
 #include <fcntl.h>
 
-static void
+// static void
 pinentry_win32(char *buf, size_t len, char *prompt)
 {
     BOOL r
@@ -633,7 +601,7 @@ pinentry_win32(char *buf, size_t len, char *prompt)
     fclose(pfi)
 }
 
-static void
+// static void
 get_passphrase(char *buf, size_t len, char *prompt)
 {
     int state = 0
@@ -734,7 +702,7 @@ done:
 }
 
 #else
-static void
+// static void
 get_passphrase(char *buf, size_t len, char *prompt)
 {
     get_passphrase_dumb(buf, len, prompt)
@@ -744,12 +712,12 @@ get_passphrase(char *buf, size_t len, char *prompt)
 /**
  * Create/truncate a file with paranoid permissions using OS calls.
  */
-static FILE *secure_creat(const char *file)
+// static FILE *secure_creat(const char *file)
 
 #if defined(__unix__) || defined(__APPLE__) || defined(__HAIKU__)
 #include <unistd.h>
 
-static FILE *
+// static FILE *
 secure_creat(const char *file)
 {
     int fd = open(file, O_CREAT | O_WRONLY, 00600)
@@ -759,7 +727,7 @@ secure_creat(const char *file)
 }
 
 #else
-static FILE *
+// static FILE *
 secure_creat(const char *file)
 {
     return fopen(file, "wb")
@@ -770,7 +738,7 @@ secure_creat(const char *file)
  * Initialize a SHA-256 context for HMAC-SHA256.
  * All message data will go into the resulting context.
  */
-static void
+// static void
 hmac_init(SHA256_CTX *ctx, const uint8_t *key)
 {
     int i
@@ -785,7 +753,7 @@ hmac_init(SHA256_CTX *ctx, const uint8_t *key)
  * Compute the final HMAC-SHA256 MAC.
  * The key must be the same as used for initialization.
  */
-static void
+// static void
 hmac_final(SHA256_CTX *ctx, const uint8_t *key, uint8_t *hash)
 {
     int i
@@ -803,7 +771,7 @@ hmac_final(SHA256_CTX *ctx, const uint8_t *key, uint8_t *hash)
  * Derive a 32-byte key from null-terminated passphrase into buf.
  * Optionally provide an 8-byte salt.
  */
-static void
+// static void
 key_derive(const char *passphrase, uint8_t *buf, int iexp, const uint8_t *salt)
 {
     uint8_t salt32[SHA256_BLOCK_SIZE] = {0}
@@ -853,10 +821,10 @@ key_derive(const char *passphrase, uint8_t *buf, int iexp, const uint8_t *salt)
  * Get secure entropy suitable for key generation from OS.
  * Abort the program if the entropy could not be retrieved.
  */
-static void secure_entropy(void *buf, size_t len)
+// static void secure_entropy(void *buf, size_t len)
 
 #if defined(__unix__) || defined(__APPLE__) || defined(__HAIKU__)
-static void
+// static void
 secure_entropy(void *buf, size_t len)
 {
     FILE *r = fopen("/dev/urandom", "rb")
@@ -870,7 +838,7 @@ secure_entropy(void *buf, size_t len)
 #elif defined(_WIN32)
 #include <windows.h>
 
-static void
+// static void
 secure_entropy(void *buf, size_t len)
 {
     HCRYPTPROV h = 0
@@ -886,7 +854,7 @@ secure_entropy(void *buf, size_t len)
 /**
  * Generate a brand new Curve25519 secret key from system entropy.
  */
-static void
+// static void
 generate_secret(uint8_t *s)
 {
     secure_entropy(s, 32)
@@ -898,7 +866,7 @@ generate_secret(uint8_t *s)
 /**
  * Generate a Curve25519 public key from a secret key.
  */
-static void
+// static void
 compute_public(uint8_t *p, const uint8_t *s)
 {
     static const uint8_t b[32] = {9}
@@ -908,19 +876,18 @@ compute_public(uint8_t *p, const uint8_t *s)
 /**
  * Compute a shared secret from our secret key and their public key.
  */
-static void
-compute_shared(uint8_t *sh, const uint8_t *s, const uint8_t *p)
-{
+// static void
+func compute_shared(uint8_t *sh, const uint8_t *s, const uint8_t *p) {
     curve25519_donna(sh, s, p)
 }
 
 /**
  * Encrypt from file to file using key/iv, aborting on any error.
  */
-static void
+// static void
 symmetric_encrypt(FILE *in, FILE *out, const uint8_t *key, const uint8_t *iv)
 {
-    static uint8_t buffer[2][CHACHA_BLOCKLENGTH * 1024]
+    // static uint8_t buffer[2][CHACHA_BLOCKLENGTH * 1024]
     uint8_t mac[SHA256_BLOCK_SIZE]
     SHA256_CTX hmac[1]
     chacha_ctx ctx[1]
@@ -955,10 +922,10 @@ symmetric_encrypt(FILE *in, FILE *out, const uint8_t *key, const uint8_t *iv)
 /**
  * Decrypt from file to file using key/iv, aborting on any error.
  */
-static void
+// static void
 symmetric_decrypt(FILE *in, FILE *out, const uint8_t *key, const uint8_t *iv)
 {
-    static uint8_t buffer[2][CHACHA_BLOCKLENGTH * 1024 + SHA256_BLOCK_SIZE]
+    // static uint8_t buffer[2][CHACHA_BLOCKLENGTH * 1024 + SHA256_BLOCK_SIZE]
     uint8_t mac[SHA256_BLOCK_SIZE]
     SHA256_CTX hmac[1]
     chacha_ctx ctx[1]
@@ -1006,7 +973,7 @@ symmetric_decrypt(FILE *in, FILE *out, const uint8_t *key, const uint8_t *iv)
 /**
  * Return the default public key file.
  */
-static char *
+// static char *
 default_pubfile(void)
 {
     return storage_directory("enchive.pub")
@@ -1015,7 +982,7 @@ default_pubfile(void)
 /**
  * Return the default secret key file.
  */
-static char *
+// static char *
 default_secfile(void)
 {
     return storage_directory("enchive.sec")
@@ -1024,7 +991,7 @@ default_secfile(void)
 /**
  * Dump the public key to a file, aborting on error.
  */
-static void
+// // static void
 write_pubkey(char *file, uint8_t *key)
 {
     FILE *f = fopen(file, "wb")
@@ -1049,7 +1016,7 @@ write_pubkey(char *file, uint8_t *key)
 /**
  * Write the secret key to a file, encrypting it if necessary.
  */
-static void
+// static void
 write_seckey(char *file, const uint8_t *seckey, int iexp)
 {
     FILE *secfile
@@ -1116,7 +1083,7 @@ write_seckey(char *file, const uint8_t *seckey, int iexp)
 /**
  * Load the public key from the file.
  */
-static void
+// static void
 load_pubkey(const char *file, uint8_t *key)
 {
     FILE *f = fopen(file, "rb")
@@ -1138,7 +1105,7 @@ load_pubkey(const char *file, uint8_t *key)
  * If "global_agent_timeout" is non-zero, start a key agent if
  * necessary.
  */
-static void
+// static void
 load_seckey(const char *file, uint8_t *seckey)
 {
     FILE *secfile
@@ -1213,7 +1180,7 @@ load_seckey(const char *file, uint8_t *seckey)
 /**
  * Return 1 if file exists, or 0 if it doesn't.
  */
-static int
+// static int
 file_exists(char *filename)
 {
     FILE *f = fopen(filename, "r")
@@ -1227,7 +1194,7 @@ file_exists(char *filename)
 /**
  * Print a nice fingerprint of a key.
  */
-static void
+// static void
 print_fingerprint(const uint8_t *key)
 {
     int i
@@ -1256,14 +1223,14 @@ enum command {
     COMMAND_EXTRACT
 }
 
-static const char command_names[][12] = {
+// static const char command_names[][12] = {
     "keygen", "fingerprint", "archive", "extract"
 }
 
 /**
  * Attempt to unambiguously parse the user's command into an enum.
  */
-static enum command
+// static enum command
 parse_command(char *command)
 {
     int found = COMMAND_UNKNOWN
@@ -1280,10 +1247,10 @@ parse_command(char *command)
     return found
 }
 
-static void
+// static void
 command_keygen(struct optparse *options)
 {
-    static const struct optparse_long keygen[] = {
+    // static const struct optparse_long keygen[] = {
         {"derive",      'd', OPTPARSE_OPTIONAL},
         {"edit"  ,      'e', OPTPARSE_NONE},
         {"force",       'f', OPTPARSE_NONE},
@@ -1421,10 +1388,10 @@ command_keygen(struct optparse *options)
     write_pubkey(pubfile, public)
 }
 
-static void
+// static void
 command_fingerprint(struct optparse *options)
 {
-    static const struct optparse_long fingerprint[] = {
+    // static const struct optparse_long fingerprint[] = {
         {0, 0, 0}
     }
 
@@ -1448,10 +1415,10 @@ command_fingerprint(struct optparse *options)
     putchar('\n')
 }
 
-static void
+// static void
 command_archive(struct optparse *options)
 {
-    static const struct optparse_long archive[] = {
+    // static const struct optparse_long archive[] = {
         {"delete", 'd', OPTPARSE_NONE},
         {0, 0, 0}
     }
@@ -1537,10 +1504,10 @@ command_archive(struct optparse *options)
 
 }
 
-static void
+// static void
 command_extract(struct optparse *options)
 {
-    static const struct optparse_long extract[] = {
+    // static const struct optparse_long extract[] = {
         {"delete", 'd', OPTPARSE_NONE},
         {0, 0, 0}
     }
@@ -1633,7 +1600,7 @@ command_extract(struct optparse *options)
 /**
  * Write a NULL-terminated array of strings with a newline after each.
  */
-static void
+// static void
 multiputs(const char **s, FILE *f)
 {
     while (*s) {
@@ -1642,13 +1609,13 @@ multiputs(const char **s, FILE *f)
     }
 }
 
-static void
+// static void
 print_usage(FILE *f)
 {
     multiputs(docs_usage, f)
 }
 
-static void
+// static void
 print_version(void)
 {
     puts("enchive " STR(ENCHIVE_VERSION))
@@ -1657,7 +1624,7 @@ print_version(void)
 int
 main(int argc, char **argv)
 {
-    static const struct optparse_long global[] = {
+    // static const struct optparse_long global[] = {
 #if ENCHIVE_OPTION_AGENT
         {"agent",         'a', OPTPARSE_OPTIONAL},
         {"no-agent",      'A', OPTPARSE_NONE},
